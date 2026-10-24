@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% load moeda %}
+{% block titulo %}Relatório{% endblock %}
+{% block conteudo %}
+<div class="stats">
+ <div class="stat"><b>{{ faturado|brl }}</b><span>faturado ({{ fin|length }})</span></div>
+ <div class="stat"><b class="{% if lucro < 0 %}neg{% else %}pos{% endif %}">{{ lucro|brl }}</b><span>lucro real</span></div>
+ <div class="stat"><b class="{% if perdido > 0 %}neg{% endif %}">{{ perdido|brl }}</b><span>perdido (atrasos e erros)</span></div>
+</div>
+<div class="sec">Erros por funcionário</div>
+<table><tr><th>Funcionário</th><th>Serviços</th><th>Erros</th><th>Custo dos erros</th></tr>
+{% for f in por_func %}<tr><td>{{ f.nome }}</td><td>{{ f.total }}</td><td class="{% if f.erros %}neg{% endif %}">{{ f.erros }}</td><td>{{ f.custo|brl }}</td></tr>
+{% empty %}<tr><td colspan="4" class="hint">Cadastre a equipe em Custos.</td></tr>{% endfor %}</table>
+<div class="sec">Lucro por tipo de serviço</div>
+<table><tr><th>Tipo</th><th>Qtd</th><th>Lucro real</th><th>Por dia</th></tr>
+{% for t in por_tipo %}<tr><td>{{ t.nome }}</td><td>{{ t.qtd }}</td><td class="{% if t.lucro < 0 %}neg{% else %}pos{% endif %}">{{ t.lucro|brl }}</td><td>{{ t.por_dia|brl }}</td></tr>
+{% empty %}<tr><td colspan="4" class="hint">Nenhum serviço concluído ainda.</td></tr>{% endfor %}</table>
+<div class="sec">Serviços concluídos</div>
+<table><tr><th>Serviço</th><th>Dias</th><th>Lucro real</th></tr>
+{% for s in fin %}<tr><td>{{ s }}{% if s.erro %} <span class="tag bad">erro</span>{% endif %}</td><td class="{% if s.atraso %}neg{% endif %}">{{ s.dias }}/{{ s.prazo }}</td><td class="{% if s.lucro_real < 0 %}neg{% else %}pos{% endif %}">{{ s.lucro_real|brl }}</td></tr>
+{% empty %}<tr><td colspan="3" class="hint">Nenhum serviço concluído ainda.</td></tr>{% endfor %}</table>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}{% load moeda %}
+{% block titulo %}Custos{% endblock %}
+{% block conteudo %}
+<form method="post">{% csrf_token %}
+ <div class="sec">Custos fixos</div>
+ {{ form.non_field_errors }}
+ <div class="g">{% for field in form %}<label class="f"><b>{{ field.label }}</b>{{ field }}{{ field.errors }}</label>{% endfor %}</div>
+ <div class="g">
+  <div class="f"><b>Total no mês</b><div class="v">{{ cfg.total_mensal|brl }}</div></div>
+  <div class="f tot"><b>Custo/dia do carro</b><div class="v">{{ cfg.custo_dia|brl }}</div></div>
+ </div>
+ <button class="btn">Salvar custos</button>
+</form>
+
+<div class="sec">Equipe</div>
+<table>
+ {% for f in equipe %}
+ <tr><td>{{ f.nome }}</td><td style="text-align:right">
+  <form method="post" action="{% url 'equipe_remover' f.pk %}">{% csrf_token %}<button class="btn o s">Remover</button></form></td></tr>
+ {% empty %}<tr><td class="hint">Cadastre os funcionários para escolher quem executa cada etapa.</td></tr>
+ {% endfor %}
+</table>
+<form method="post" action="{% url 'equipe_adicionar' %}" class="row">{% csrf_token %}
+ <label class="f" style="flex:1"><b>Novo funcionário</b><input name="nome" required></label>
+ <button class="btn">Adicionar</button>
+</form>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}{% load moeda %}
+{% block titulo %}Serviços{% endblock %}
+{% block conteudo %}
+<div class="stats">
+ <div class="stat"><b>{{ servicos|length }}/{{ cfg.vagas }}</b><span>vagas em uso</span></div>
+ <div class="stat"><b>{{ cfg.custo_dia|brl }}</b><span>custo/dia parado</span></div>
+ <div class="stat"><b class="{% if perdido_atrasos > 0 %}neg{% endif %}">{{ perdido_atrasos|brl }}</b><span>perdido em atrasos</span></div>
+</div>
+{% for s in servicos %}
+<article class="card {{ s.urgencia }}">
+ <h3>{{ forloop.counter }}. {{ s }}</h3>
+ <div class="meta">{{ s.cliente|default:"Cliente não informado" }}</div>
+ <div class="facts">
+  <span>Valor total<b>{{ s.preco|brl }}</b></span>
+  <span>Lucro previsto<b class="{% if s.lucro_previsto < 0 %}neg{% else %}pos{% endif %}">{{ s.lucro_previsto|brl }}</b></span>
+  <span>Lucro/dia de pátio<b class="{% if s.lucro_dia < 0 %}neg{% else %}pos{% endif %}">{{ s.lucro_dia|brl }}</b></span>
+  <span>Prazo<b>{{ s.prazo }} dia(s)</b></span>
+ </div>
+ <div>
+  {% if s.lanternagem %}<span class="tag exe">Lanternagem: {{ s.lanternagem }}</span>{% endif %}
+  {% if s.preparacao %}<span class="tag exe">Preparação: {{ s.preparacao }}</span>{% endif %}
+  {% if s.pintura %}<span class="tag exe">Pintura: {{ s.pintura }}</span>{% endif %}
+  {% if s.fixado %}<span class="tag pin">Fixado</span>{% endif %}
+  <span class="tag">{{ s.dias }} dia(s) em execução</span>
+  {% if s.atraso > 0 %}<span class="tag bad">{{ s.atraso }} d de atraso: {{ s.custo_atraso|brl }}</span>{% endif %}
+  {% if s.lucro_previsto < 0 %}<span class="tag bad">No prejuízo</span>{% endif %}
+  {% if s.erro %}<span class="tag bad">Deu errado</span>{% endif %}
+ </div>
+ <div class="row">
+  <a class="btn s" href="{% url 'servico_editar' s.pk %}">Editar</a>
+  <form method="post" action="{% url 'servico_concluir' s.pk %}">{% csrf_token %}<button class="btn o s">Concluir</button></form>
+  <form method="post" action="{% url 'servico_fixar' s.pk %}">{% csrf_token %}<button class="btn o s">{% if s.fixado %}Desafixar{% else %}Fixar{% endif %}</button></form>
+  <a class="btn o s" style="margin-left:auto" href="{% url 'servico_excluir' s.pk %}">Excluir</a>
+ </div>
+</article>
+{% empty %}
+<div class="empty"><p><b>Nenhum serviço na fila.</b></p><a class="btn" href="{% url 'servico_novo' %}">Novo orçamento</a></div>
+{% endfor %}
+{% endblock %}

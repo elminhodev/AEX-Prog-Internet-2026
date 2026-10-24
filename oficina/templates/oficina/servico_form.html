@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block titulo %}{% if obj %}Editar serviço{% else %}Novo orçamento{% endif %}{% endblock %}
+{% block conteudo %}
+<form method="post">{% csrf_token %}
+ {{ form.non_field_errors }}
+ <div class="sec">{% if obj %}Editar{% else %}Novo{% endif %} serviço</div>
+ <div class="g">
+ {% for field in form %}
+  <label class="f {% if field.name in 'cliente veiculo erro_obs' %}w{% endif %}{% if field.name == 'preco' %} tot{% endif %}">
+   <b>{{ field.label }}</b>{{ field }}{{ field.errors }}</label>
+ {% endfor %}
+ </div>
+ <p><button type="button" class="btn o s" id="sugerir">Sugerir valor (materiais + pátio + margem padrão)</button></p>
+
+ <div class="sec">Materiais</div>
+ {{ formset.management_form }}{{ formset.non_form_errors }}
+ <table>
+  <tr><th>Material</th><th>Preço (R$)</th>{% if obj %}<th>Excluir</th>{% endif %}</tr>
+  {% for f in formset %}
+  <tr>{{ f.id }}<td>{{ f.nome }}</td><td>{{ f.preco }}{{ f.preco.errors }}</td>
+   {% if obj %}<td>{% if f.instance.pk %}{{ f.DELETE }}{% endif %}</td>{% endif %}</tr>
+  {% endfor %}
+ </table>
+ <div class="row"><button class="btn">Salvar</button><a class="btn o" href="{% url 'fila' %}">Cancelar</a></div>
+</form>
+<script>
+document.getElementById('sugerir').onclick = () => {
+  let mat = 0;
+  document.querySelectorAll('input[name$="-preco"]').forEach(i => {
+    const del = i.closest('tr').querySelector('[name$="-DELETE"]');
+    if (!(del && del.checked)) mat += parseFloat(i.value) || 0;
+  });
+  const prazo = parseFloat(document.getElementById('id_prazo').value) || 1;
+  const custo = mat + {{ custo_dia }} * prazo;
+  document.getElementById('id_preco').value = (custo * (1 + {{ margem }} / 100)).toFixed(2);
+};
+</script>
+{% endblock %}

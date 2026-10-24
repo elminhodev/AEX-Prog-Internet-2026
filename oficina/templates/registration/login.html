@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titulo %}Entrar{% endblock %}
+{% block conteudo %}
+<form method="post">{% csrf_token %}
+ <div class="sec">Entrar no sistema</div>
+ {{ form.non_field_errors }}
+ <div class="g">
+  <label class="f w"><b>Usuário</b>{{ form.username }}</label>
+  <label class="f w"><b>Senha</b>{{ form.password }}</label>
+ </div>
+ <button class="btn">Entrar</button>
+</form>
+{% endblock %}
