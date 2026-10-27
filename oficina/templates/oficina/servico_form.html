@@ -3,36 +3,101 @@
 {% block conteudo %}
 <form method="post">{% csrf_token %}
  {{ form.non_field_errors }}
- <div class="sec">{% if obj %}Editar{% else %}Novo{% endif %} serviço</div>
+ <div class="sec">{% if obj %}Editar serviço{% else %}Novo orçamento{% endif %}</div>
  <div class="g">
- {% for field in form %}
-  <label class="f {% if field.name in 'cliente veiculo erro_obs' %}w{% endif %}{% if field.name == 'preco' %} tot{% endif %}">
-   <b>{{ field.label }}</b>{{ field }}{{ field.errors }}</label>
- {% endfor %}
+  {% include "oficina/_campo.html" with f=form.cliente w=True %}
+  {% include "oficina/_campo.html" with f=form.veiculo w=True %}
+  {% include "oficina/_campo.html" with f=form.tipo %}
+  {% include "oficina/_campo.html" with f=form.urgencia %}
+  {% include "oficina/_campo.html" with f=form.lanternagem %}
+  {% include "oficina/_campo.html" with f=form.preparacao %}
+  {% include "oficina/_campo.html" with f=form.pintura %}
+  {% include "oficina/_campo.html" with f=form.status %}
+  {% include "oficina/_campo.html" with f=form.inicio %}
  </div>
- <p><button type="button" class="btn o s" id="sugerir">Sugerir valor (materiais + pátio + margem padrão)</button></p>
 
  <div class="sec">Materiais</div>
  {{ formset.management_form }}{{ formset.non_form_errors }}
- <table>
+ <table id="materiais">
   <tr><th>Material</th><th>Preço (R$)</th>{% if obj %}<th>Excluir</th>{% endif %}</tr>
   {% for f in formset %}
   <tr>{{ f.id }}<td>{{ f.nome }}</td><td>{{ f.preco }}{{ f.preco.errors }}</td>
    {% if obj %}<td>{% if f.instance.pk %}{{ f.DELETE }}{% endif %}</td>{% endif %}</tr>
   {% endfor %}
  </table>
+ <p><button type="button" class="btn o s" id="add-material">+ Adicionar material</button></p>
+ <template id="modelo-material">
+  <tr>{{ formset.empty_form.id }}<td>{{ formset.empty_form.nome }}</td><td>{{ formset.empty_form.preco }}</td>{% if obj %}<td></td>{% endif %}</tr>
+ </template>
+
+ <div class="sec">Custos do projeto</div>
+ <div class="g">
+  {% include "oficina/_campo.html" with f=form.prazo %}
+  <label class="f"><b>Custo do pátio</b><input id="cp" readonly></label>
+  <label class="f"><b>Margem de lucro (%)</b><input id="margem" type="number" step="1" value="{{ margem }}"></label>
+  <label class="f"><b>Estimativa de lucro</b><input id="est" readonly></label>
+  {% include "oficina/_campo.html" with f=form.preco w=True tot=True %}
+ </div>
+ <p class="hint">O valor sugerido inclui o custo do pátio, os materiais e a margem. Ao alterar o valor total, a margem de lucro se ajusta sozinha.</p>
+
+ {% if obj %}
+ <div class="sec">Ao concluir (valores reais)</div>
+ <div class="g">
+  {% include "oficina/_campo.html" with f=form.fim %}
+  {% include "oficina/_campo.html" with f=form.materiais_reais %}
+  {% include "oficina/_campo.html" with f=form.erro %}
+  {% include "oficina/_campo.html" with f=form.erro_etapa %}
+  {% include "oficina/_campo.html" with f=form.erro_custo %}
+  {% include "oficina/_campo.html" with f=form.erro_obs w=True %}
+ </div>
+ {% endif %}
+
  <div class="row"><button class="btn">Salvar</button><a class="btn o" href="{% url 'fila' %}">Cancelar</a></div>
 </form>
 <script>
-document.getElementById('sugerir').onclick = () => {
-  let mat = 0;
-  document.querySelectorAll('input[name$="-preco"]').forEach(i => {
+const CD = {{ custo_dia }};
+const $ = id => document.getElementById(id);
+const prazo = $('id_prazo'), preco = $('id_preco'), margem = $('margem'), cp = $('cp'), est = $('est');
+const brl = v => 'R$ ' + v.toFixed(2).replace('.', ',');
+
+function materiais() {
+  let total = 0;
+  document.querySelectorAll('#materiais input[name$="-preco"]').forEach(i => {
     const del = i.closest('tr').querySelector('[name$="-DELETE"]');
-    if (!(del && del.checked)) mat += parseFloat(i.value) || 0;
+    if (!(del && del.checked)) total += parseFloat(i.value) || 0;
   });
-  const prazo = parseFloat(document.getElementById('id_prazo').value) || 1;
-  const custo = mat + {{ custo_dia }} * prazo;
-  document.getElementById('id_preco').value = (custo * (1 + {{ margem }} / 100)).toFixed(2);
-};
+  return total;
+}
+
+function atualiza(origem) {
+  const patio = CD * Math.max(1, parseFloat(prazo.value) || 1);
+  const total = patio + materiais();
+  cp.value = brl(patio);
+  if (origem === 'valor') {
+    const v = parseFloat(preco.value) || 0;
+    margem.value = total ? Math.round((v - total) / total * 100) : 0;
+  } else {
+    preco.value = (total * (1 + (parseFloat(margem.value) || 0) / 100)).toFixed(2);
+  }
+  est.value = brl((parseFloat(preco.value) || 0) - total);
+}
+
+prazo.addEventListener('input', () => atualiza('margem'));
+margem.addEventListener('input', () => atualiza('margem'));
+preco.addEventListener('input', () => atualiza('valor'));
+$('materiais').addEventListener('input', () => atualiza('margem'));
+$('materiais').addEventListener('change', () => atualiza('margem'));
+
+$('add-material').addEventListener('click', () => {
+  const total = $('id_materiais-TOTAL_FORMS');
+  const n = parseInt(total.value);
+  $('materiais').tBodies[0].insertAdjacentHTML('beforeend',
+    $('modelo-material').innerHTML.replaceAll('__prefix__', n));
+  total.value = n + 1;
+  const nome = document.getElementById('id_materiais-' + n + '-nome');
+  if (nome) nome.focus();
+});
+
+atualiza({% if obj %}'valor'{% else %}'margem'{% endif %});
 </script>
 {% endblock %}

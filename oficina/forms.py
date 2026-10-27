@@ -28,7 +28,7 @@ class ServicoForm(forms.ModelForm):
         return dados
 
 
-MaterialFormSet = inlineformset_factory(Servico, Material, fields=("nome", "preco"), extra=3, can_delete=True)
+MaterialFormSet = inlineformset_factory(Servico, Material, fields=("nome", "preco"), extra=1, can_delete=True)
 
 
 class CustosForm(forms.ModelForm):

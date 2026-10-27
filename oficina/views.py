@@ -32,6 +32,9 @@ def fila(request):
 def servico_form(request, pk=None):
     obj = get_object_or_404(Servico, pk=pk) if pk else None
     form = ServicoForm(request.POST or None, instance=obj)
+    if not obj:  # na criação, esconde os campos que só valem depois do serviço pronto
+        for nome in ("fim", "materiais_reais", "erro", "erro_etapa", "erro_custo", "erro_obs"):
+            del form.fields[nome]
     formset = MaterialFormSet(request.POST or None, instance=obj)
     if request.method == "POST" and form.is_valid() and formset.is_valid():
         servico = form.save()
