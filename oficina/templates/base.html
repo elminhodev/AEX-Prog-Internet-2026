@@ -1,12 +1,14 @@
+
 {% load static %}<!doctype html>
 <html lang="pt-br"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block titulo %}Funilaria{% endblock %} · Funilaria Preço</title>
+<title>{% block titulo %}Funilaria{% endblock %} · ZION</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head><body>
-<header><h1>{% block h1 %}Funilaria Preço{% endblock %}</h1>
-{% if user.is_authenticated %}<form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn o s">Sair ({{ user.username }})</button></form>{% endif %}
+<header class="zion-header">
+<img src="{% static 'img/banner-zion.png' %}" alt="ZION Funilaria e Pintura" class="zion-banner">
+{% if user.is_authenticated %}<form method="post" action="{% url 'logout' %}" class="logout-form">{% csrf_token %}<button class="btn o s">Sair ({{ user.username }})</button></form>{% endif %}
 </header>
 {% if user.is_authenticated %}
 <nav>
