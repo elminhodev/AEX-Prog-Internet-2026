@@ -90,8 +90,8 @@ Esse comando cria custos iniciais, funcionários, serviços de exemplo e o usuá
 
 | Campo | Valor |
 | --- | --- |
-| Usuário | `dono` |
-| Senha | `funilaria123` |
+| Usuário | `joaodev` |
+| Senha | `123123` |
 
 ### 6. Inicie o servidor
 
