@@ -1,6 +1,6 @@
 # Funilaria Preço
 
-Sistema web para apoiar a organização de uma funilaria. A aplicação registra orçamentos e serviços, estima custos e lucros, organiza a fila de trabalho e oferece relatórios sobre os serviços concluídos.
+Sistema web para apoiar a organização de uma funilaria. A aplicação registra orçamentos e serviços, estima custos e lucros, organiza a fila de trabalho e oferece relatórios sobre os serviços que foram concluídos.
 
 O projeto foi desenvolvido com **Python**, **Django** e **SQLite**.
 
@@ -90,8 +90,8 @@ Esse comando cria custos iniciais, funcionários, serviços de exemplo e o usuá
 
 | Campo | Valor |
 | --- | --- |
-| Usuário | `dono` |
-| Senha | `funilaria123` |
+| Usuário | `joaodev` |
+| Senha | `123123` |
 
 ### 6. Inicie o servidor
 
