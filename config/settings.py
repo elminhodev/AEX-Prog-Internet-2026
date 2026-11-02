@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-key-trocar-em-producao")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["aex-prog-internet-2026.onrender.com", "localhost", "127.0.0.1", "aex-prog-internet-2026-pw6r.onrender.com"]
+ALLOWED_HOSTS = ["aex-prog-internet-2026.onrender.com", "localhost", "127.0.0.1", "aex-prog-internet-2026-ahgv.onrender.com"]
 CSRF_TRUSTED_ORIGINS = ["https://aex-prog-internet-2026.onrender.com"]
 
 INSTALLED_APPS = [
